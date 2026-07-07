@@ -1,98 +1,513 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>FitTracker - Néstor</title>
 
     <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
-<div class="container">
+<div class="app">
 
-    <h1>💪 FitTracker - Néstor</h1>
+    <!-- ===================================== -->
+    <!-- CABECERA -->
+    <!-- ===================================== -->
 
-    <p id="fecha"></p>
+    <header class="header">
 
-    <section class="card">
+        <h1>💪 FitTracker - Néstor</h1>
 
-        <h2>🌅 Mañana</h2>
+        <p id="fecha"></p>
 
-        <label>Peso (kg)</label>
-        <input type="number" id="pesoManana" step="0.1">
+    </header>
 
-        <label>Perímetro abdominal (cm)</label>
-        <input type="number" id="abdomenManana" step="0.1">
+
+
+    <!-- ===================================== -->
+    <!-- PANTALLA INICIO -->
+    <!-- ===================================== -->
+
+    <section id="inicio" class="screen active">
+
+        <div class="hero-card">
+
+            <p class="objetivoTitulo">
+                Objetivo
+            </p>
+
+            <h2>
+                92 kg
+            </h2>
+
+            <div class="pesoActual">
+
+                <span>Peso actual</span>
+
+                <h3 id="pesoActual">
+
+                    --
+
+                </h3>
+
+            </div>
+
+            <div class="barraObjetivo">
+
+                <div id="barraProgreso">
+
+                </div>
+
+            </div>
+
+            <div class="barraLabels">
+
+                <span id="pesoInicial">
+                    101 kg
+                </span>
+
+                <span>
+                    Objetivo 92 kg
+                </span>
+
+            </div>
+
+            <div class="resumenSuperior">
+
+                <div class="dato">
+
+                    <span>Perdidos</span>
+
+                    <strong id="pesoPerdido">
+
+                        --
+
+                    </strong>
+
+                </div>
+
+                <div class="dato">
+
+                    <span>Restan</span>
+
+                    <strong id="pesoRestante">
+
+                        --
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="dashboardGrid">
+
+            <div class="card">
+
+                <div class="emoji">
+                    📏
+                </div>
+
+                <div class="tituloCard">
+
+                    Abdomen
+
+                </div>
+
+                <div
+                    id="abdomenActual"
+                    class="valorCard">
+
+                    --
+
+                </div>
+
+            </div>
+
+
+
+            <div class="card">
+
+                <div class="emoji">
+
+                    📅
+
+                </div>
+
+                <div class="tituloCard">
+
+                    Registros
+
+                </div>
+
+                <div
+                    id="diasRegistrados"
+                    class="valorCard">
+
+                    0
+
+                </div>
+
+            </div>
+
+
+
+            <div class="card">
+
+                <div class="emoji">
+
+                    🏋️
+
+                </div>
+
+                <div class="tituloCard">
+
+                    Último entrenamiento
+
+                </div>
+
+                <div
+                    id="ultimoEntreno"
+                    class="valorCard">
+
+                    --
+
+                </div>
+
+            </div>
+
+
+
+            <div class="card">
+
+                <div class="emoji">
+
+                    😴
+
+                </div>
+
+                <div class="tituloCard">
+
+                    Sueño medio
+
+                </div>
+
+                <div
+                    id="suenoMedio"
+                    class="valorCard">
+
+                    --
+
+                </div>
+
+            </div>
+
+        </div>
 
     </section>
 
 
-    <section class="card">
 
-        <h2>🌙 Noche</h2>
+    <!-- ===================================== -->
+    <!-- PANTALLA REGISTRAR -->
+    <!-- ===================================== -->
 
-        <label>Peso (kg)</label>
-        <input type="number" id="pesoNoche" step="0.1">
+    <section
+        id="registrar"
+        class="screen">
 
-        <label>Perímetro abdominal (cm)</label>
-        <input type="number" id="abdomenNoche" step="0.1">
+        <div class="card">
+
+            <h2>
+                🌅 Mañana
+            </h2>
+
+            <label>
+                Peso (kg)
+            </label>
+
+            <input
+                type="number"
+                id="pesoManana"
+                step="0.1">
+
+            <label>
+
+                Perímetro abdominal (cm)
+
+            </label>
+
+            <input
+                type="number"
+                id="abdomenManana"
+                step="0.1">
+
+        </div>
+
+        <div class="card">
+
+            <h2>
+
+                🌙 Noche
+
+            </h2>
+
+            <label>
+
+                Peso (kg)
+
+            </label>
+
+            <input
+                type="number"
+                id="pesoNoche"
+                step="0.1">
+
+            <label>
+
+                Perímetro abdominal (cm)
+
+            </label>
+
+            <input
+                type="number"
+                id="abdomenNoche"
+                step="0.1">
+        </div>
+
+        <!-- ===================================== -->
+        <!-- ACTIVIDAD -->
+        <!-- ===================================== -->
+
+        <div class="card">
+
+            <h2>🏃 Actividad</h2>
+
+            <label>💧 Agua (L)</label>
+            <input
+                type="number"
+                id="agua"
+                step="0.1">
+
+            <label>😴 Sueño (horas)</label>
+            <input
+                type="number"
+                id="sueno"
+                step="0.1">
+
+            <label>🚶 Pasos</label>
+            <input
+                type="number"
+                id="pasos">
+
+            <label>💪 Entrenamiento</label>
+
+            <textarea
+                id="entreno"
+                placeholder="Describe el entrenamiento realizado"></textarea>
+
+        </div>
+
+
+
+        <!-- ===================================== -->
+        <!-- ALIMENTACIÓN -->
+        <!-- ===================================== -->
+
+        <div class="card">
+
+            <h2>🍽️ Alimentación</h2>
+
+            <label>🍞 Desayuno</label>
+
+            <textarea
+                id="desayuno"
+                placeholder="¿Qué has desayunado?"></textarea>
+
+            <label>🍽️ Comida</label>
+
+            <textarea
+                id="comida"
+                placeholder="¿Qué has comido?"></textarea>
+
+            <label>🌙 Cena</label>
+
+            <textarea
+                id="cena"
+                placeholder="¿Qué has cenado?"></textarea>
+
+        </div>
+
+
+
+        <!-- ===================================== -->
+        <!-- SENSACIONES -->
+        <!-- ===================================== -->
+
+        <div class="card">
+
+            <h2>😊 Sensaciones</h2>
+
+            <label>Energía (1-5)</label>
+
+            <input
+                type="number"
+                id="energia"
+                min="1"
+                max="5"
+                step="0.5">
+
+            <label>Hambre (1-5)</label>
+
+            <input
+                type="number"
+                id="hambre"
+                min="1"
+                max="5"
+                step="0.5">
+
+            <label>Observaciones</label>
+
+            <textarea
+                id="notas"
+                placeholder="Cualquier comentario del día..."></textarea>
+
+        </div>
+
+        <button id="guardar">
+
+            💾 Finalizar día
+
+        </button>
 
     </section>
 
 
-    <section class="card">
 
-        <h2>📊 Datos del día</h2>
+    <!-- ===================================== -->
+    <!-- HISTORIAL -->
+    <!-- ===================================== -->
 
-        <label>💧 Agua (L)</label>
-        <input type="number" id="agua" step="0.1">
+    <section
+        id="historial"
+        class="screen">
 
-        <label>😴 Sueño (horas)</label>
-        <input type="number" id="sueno" step="0.1">
+        <div class="card">
 
-        <label>🚶 Pasos</label>
-        <input type="number" id="pasos">
+            <h2>📊 Historial</h2>
 
-        <label>💪 Entrenamiento</label>
-        <textarea id="entreno"></textarea>
+            <table id="tablaHistorial">
 
-        <label>🍞 Desayuno</label>
-        <textarea id="desayuno"></textarea>
+                <thead>
 
-        <label>🍽️ Comida</label>
-        <textarea id="comida"></textarea>
+                    <tr>
 
-        <label>🌙 Cena</label>
-        <textarea id="cena"></textarea>
+                        <th>Fecha</th>
 
-        <label>😊 Energía (1-5)</label>
-        <input type="number" min="1" max="5" id="energia">
+                        <th>Peso AM</th>
 
-        <label>😋 Hambre (1-5)</label>
-        <input type="number" min="1" max="5" id="hambre">
+                        <th>+/-</th>
 
-        <label>📝 Observaciones</label>
-        <textarea id="notas"></textarea>
+                        <th>Abd AM</th>
+
+                        <th>IMC</th>
+
+                        <th>Acciones</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                </tbody>
+
+            </table>
+
+            <div class="historialBotones">
+
+                <button id="copiar">
+
+                    📋 Copiar resumen
+
+                </button>
+
+                <button id="exportar">
+
+                    📤 Exportar datos
+
+                </button>
+
+                <button id="importar">
+
+                    📥 Importar datos
+
+                </button>
+
+                <button id="borrarHistorial">
+
+                    🗑️ Borrar historial
+
+                </button>
+
+            </div>
+
+        </div>
 
     </section>
+    <!-- ===================================== -->
+    <!-- NAVEGACIÓN INFERIOR -->
+    <!-- ===================================== -->
 
-    <button id="guardar">
-        💾 Finalizar día
-    </button>
+    <nav class="bottomNav">
 
-    <button id="historial">
-        📈 Historial
-    </button>
+        <button
+            class="navBtn active"
+            data-screen="inicio">
 
-    <button id="copiar">
-        📋 Copiar resumen para ChatGPT
-    </button>
+            <div>🏠</div>
+
+            <span>Inicio</span>
+
+        </button>
+
+        <button
+            class="navBtn"
+            data-screen="registrar">
+
+            <div>➕</div>
+
+            <span>Registrar</span>
+
+        </button>
+
+        <button
+            class="navBtn"
+            data-screen="historial">
+
+            <div>📊</div>
+
+            <span>Historial</span>
+
+        </button>
+
+    </nav>
 
 </div>
 
 <script src="script.js"></script>
 
 </body>
+
 </html>
