@@ -1,6 +1,6 @@
 /*==================================================
  FITTRACKER NÉSTOR
- Versión 0.3
+ Versión 0.3.1
 ==================================================*/
 
 
@@ -11,6 +11,13 @@
 const ALTURA = 1.86;
 const PESO_INICIAL = 101;
 const PESO_OBJETIVO = 92;
+
+/*
+ IMPORTANTE:
+ Mantenemos la misma clave para conservar
+ todos los registros actuales.
+*/
+
 const STORAGE_KEY = "fittracker_registros";
 
 
@@ -27,29 +34,145 @@ let registroEditando = null;
 ==================================================*/
 
 const screens = document.querySelectorAll(".screen");
+
 const navBtns = document.querySelectorAll(".navBtn");
 
 const fecha = document.getElementById("fecha");
 
+const fechaRegistro = document.getElementById("fechaRegistro");
+
 const guardarBtn = document.getElementById("guardar");
 
-const tablaHistorial = document.querySelector("#tablaHistorial tbody");
+const tablaHistorial =
+    document.querySelector("#tablaHistorial tbody");
+
+const archivoImportar =
+    document.getElementById("archivoImportar");
 
 
 /*==================================================
- FECHA
+ FECHA ACTUAL
 ==================================================*/
 
-function mostrarFecha() {
+function obtenerFechaHoy(){
 
     const hoy = new Date();
 
-    fecha.textContent = hoy.toLocaleDateString("es-ES", {
+    const year = hoy.getFullYear();
 
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric"
+    const month = String(
+        hoy.getMonth() + 1
+    ).padStart(2,"0");
+
+    const day = String(
+        hoy.getDate()
+    ).padStart(2,"0");
+
+    return `${year}-${month}-${day}`;
+
+}
+
+
+function mostrarFecha(){
+
+    const hoy = new Date();
+
+    fecha.textContent = hoy.toLocaleDateString(
+        "es-ES",
+        {
+
+            weekday:"long",
+
+            day:"numeric",
+
+            month:"long",
+
+            year:"numeric"
+
+        }
+    );
+
+}
+
+
+/*==================================================
+ CONVERTIR FECHAS
+==================================================*/
+
+function obtenerFechaOrdenable(fecha){
+
+    if(!fecha){
+
+        return "";
+
+    }
+
+    /*
+    Formato nuevo:
+    2026-07-11
+    */
+
+    if(fecha.includes("-")){
+
+        return fecha;
+
+    }
+
+    /*
+    Formato antiguo:
+    11/7/2026
+    */
+
+    const partes = fecha.split("/");
+
+    if(partes.length === 3){
+
+        const dia = partes[0].padStart(2,"0");
+
+        const mes = partes[1].padStart(2,"0");
+
+        const year = partes[2];
+
+        return `${year}-${mes}-${dia}`;
+
+    }
+
+    return fecha;
+
+}
+
+
+function mostrarFechaRegistro(fecha){
+
+    const fechaOrdenable =
+        obtenerFechaOrdenable(fecha);
+
+    const partes =
+        fechaOrdenable.split("-");
+
+    if(partes.length !== 3){
+
+        return fecha;
+
+    }
+
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+}
+
+
+/*==================================================
+ ORDENAR REGISTROS
+==================================================*/
+
+function ordenarRegistros(){
+
+    registros.sort((a,b)=>{
+
+        return obtenerFechaOrdenable(a.fecha)
+            .localeCompare(
+                obtenerFechaOrdenable(b.fecha)
+            );
 
     });
 
@@ -60,15 +183,37 @@ function mostrarFecha() {
  LOCAL STORAGE
 ==================================================*/
 
-function cargarDatos() {
+function cargarDatos(){
 
-    const datos = localStorage.getItem(STORAGE_KEY);
+    try{
 
-    if(datos){
+        const datos =
+            localStorage.getItem(STORAGE_KEY);
 
-        registros = JSON.parse(datos);
+        if(datos){
 
-    }else{
+            registros = JSON.parse(datos);
+
+            if(!Array.isArray(registros)){
+
+                registros = [];
+
+            }
+
+        }else{
+
+            registros = [];
+
+        }
+
+        ordenarRegistros();
+
+    }catch(error){
+
+        console.error(
+            "Error cargando los datos:",
+            error
+        );
 
         registros = [];
 
@@ -78,6 +223,8 @@ function cargarDatos() {
 
 
 function guardarDatos(){
+
+    ordenarRegistros();
 
     localStorage.setItem(
 
@@ -102,21 +249,48 @@ function mostrarPantalla(id){
 
     });
 
+
     navBtns.forEach(btn=>{
 
         btn.classList.remove("active");
 
     });
 
-    document
-        .getElementById(id)
-        .classList
-        .add("active");
 
-    document
-        .querySelector(`[data-screen="${id}"]`)
-        .classList
-        .add("active");
+    const pantalla =
+        document.getElementById(id);
+
+    if(pantalla){
+
+        pantalla.classList.add("active");
+
+    }
+
+
+    const botonActivo =
+        document.querySelector(
+            `[data-screen="${id}"]`
+        );
+
+    if(botonActivo){
+
+        botonActivo.classList.add("active");
+
+    }
+
+
+    if(id === "inicio"){
+
+        actualizarDashboard();
+
+    }
+
+
+    if(id === "historial"){
+
+        pintarHistorial();
+
+    }
 
 }
 
@@ -125,19 +299,9 @@ navBtns.forEach(btn=>{
 
     btn.addEventListener("click",()=>{
 
-        mostrarPantalla(btn.dataset.screen);
-
-        if(btn.dataset.screen==="inicio"){
-
-            actualizarDashboard();
-
-        }
-
-        if(btn.dataset.screen==="historial"){
-
-            pintarHistorial();
-
-        }
+        mostrarPantalla(
+            btn.dataset.screen
+        );
 
     });
 
@@ -150,7 +314,12 @@ navBtns.forEach(btn=>{
 
 function valor(id){
 
-    return document.getElementById(id).value;
+    const elemento =
+        document.getElementById(id);
+
+    return elemento
+        ? elemento.value
+        : "";
 
 }
 
@@ -158,80 +327,177 @@ function valor(id){
 function limpiarFormulario(){
 
     document
-        .querySelectorAll("input, textarea")
+        .querySelectorAll(
+            "#registrar input, #registrar textarea"
+        )
         .forEach(campo=>{
 
-            campo.value="";
+            campo.value = "";
 
         });
+
+    fechaRegistro.value =
+        obtenerFechaHoy();
 
 }
 
 
 /*==================================================
- INICIALIZACIÓN
+ INICIALIZACIÓN DE FECHA
 ==================================================*/
 
 mostrarFecha();
 
+fechaRegistro.value =
+    obtenerFechaHoy();
+
 cargarDatos();
 /*==================================================
- GUARDAR REGISTRO
+ GUARDAR / ACTUALIZAR REGISTRO
 ==================================================*/
 
-guardarBtn.addEventListener("click", guardarRegistro);
+guardarBtn.addEventListener(
+    "click",
+    guardarRegistro
+);
+
 
 function guardarRegistro(){
 
-    const registro={
+    const fechaSeleccionada =
+        valor("fechaRegistro");
 
-        id: registroEditando ?? Date.now(),
 
-        fecha:new Date().toLocaleDateString("es-ES"),
+    if(!fechaSeleccionada){
 
-        pesoManana:parseFloat(valor("pesoManana")) || 0,
+        alert(
+            "Selecciona una fecha para el registro."
+        );
 
-        abdomenManana:parseFloat(valor("abdomenManana")) || 0,
+        return;
 
-        pesoNoche:parseFloat(valor("pesoNoche")) || 0,
+    }
 
-        abdomenNoche:parseFloat(valor("abdomenNoche")) || 0,
 
-        agua:parseFloat(valor("agua")) || 0,
+    const registro = {
 
-        sueno:parseFloat(valor("sueno")) || 0,
+        id:
+            registroEditando !== null
+                ? registroEditando
+                : Date.now(),
 
-        pasos:parseInt(valor("pasos")) || 0,
+        fecha: fechaSeleccionada,
 
-        entreno:valor("entreno"),
+        pesoManana:
+            parseFloat(
+                valor("pesoManana")
+            ) || 0,
 
-        desayuno:valor("desayuno"),
+        abdomenManana:
+            parseFloat(
+                valor("abdomenManana")
+            ) || 0,
 
-        comida:valor("comida"),
+        pesoNoche:
+            parseFloat(
+                valor("pesoNoche")
+            ) || 0,
 
-        cena:valor("cena"),
+        abdomenNoche:
+            parseFloat(
+                valor("abdomenNoche")
+            ) || 0,
 
-        energia:parseFloat(valor("energia")) || 0,
+        agua:
+            parseFloat(
+                valor("agua")
+            ) || 0,
 
-        hambre:parseFloat(valor("hambre")) || 0,
+        sueno:
+            parseFloat(
+                valor("sueno")
+            ) || 0,
 
-        notas:valor("notas")
+        pasos:
+            parseInt(
+                valor("pasos")
+            ) || 0,
+
+        entreno:
+            valor("entreno"),
+
+        desayuno:
+            valor("desayuno"),
+
+        comida:
+            valor("comida"),
+
+        cena:
+            valor("cena"),
+
+        energia:
+            parseFloat(
+                valor("energia")
+            ) || 0,
+
+        hambre:
+            parseFloat(
+                valor("hambre")
+            ) || 0,
+
+        notas:
+            valor("notas")
 
     };
 
-    if(registroEditando){
 
-        const indice=registros.findIndex(r=>r.id===registroEditando);
+    if(registroEditando !== null){
 
-        registros[indice]=registro;
+        const indice =
+            registros.findIndex(
+                r => r.id === registroEditando
+            );
 
-        registroEditando=null;
+
+        if(indice !== -1){
+
+            registros[indice] = registro;
+
+        }
+
+
+        registroEditando = null;
 
     }else{
+
+        const existeFecha =
+            registros.find(
+                r =>
+                    obtenerFechaOrdenable(r.fecha)
+                    === fechaSeleccionada
+            );
+
+
+        if(existeFecha){
+
+            const confirmar = confirm(
+                "Ya existe un registro para esta fecha. ¿Quieres guardar otro registro igualmente?"
+            );
+
+
+            if(!confirmar){
+
+                return;
+
+            }
+
+        }
+
 
         registros.push(registro);
 
     }
+
 
     guardarDatos();
 
@@ -252,9 +518,23 @@ function guardarRegistro(){
 
 function calcularIMC(peso){
 
-    if(!peso) return "";
+    const pesoNumerico =
+        Number(peso);
 
-    return (peso/(ALTURA*ALTURA)).toFixed(1);
+
+    if(!pesoNumerico){
+
+        return "—";
+
+    }
+
+
+    return (
+
+        pesoNumerico /
+        (ALTURA * ALTURA)
+
+    ).toFixed(1);
 
 }
 
@@ -265,9 +545,9 @@ function calcularIMC(peso){
 
 function calcularVariacion(indice){
 
-    if(indice===0){
+    if(indice === 0){
 
-        return{
+        return {
 
             texto:"—",
 
@@ -277,17 +557,42 @@ function calcularVariacion(indice){
 
     }
 
-    const actual=registros[indice].pesoManana;
 
-    const anterior=registros[indice-1].pesoManana;
+    const actual =
+        Number(
+            registros[indice].pesoManana
+        );
 
-    const diferencia=(actual-anterior).toFixed(1);
 
-    if(diferencia<0){
+    const anterior =
+        Number(
+            registros[indice - 1].pesoManana
+        );
 
-        return{
 
-            texto:`${diferencia} kg`,
+    if(!actual || !anterior){
+
+        return {
+
+            texto:"—",
+
+            clase:"igualPeso"
+
+        };
+
+    }
+
+
+    const diferencia =
+        actual - anterior;
+
+
+    if(diferencia < 0){
+
+        return {
+
+            texto:
+                `🟢 ${diferencia.toFixed(1)} kg`,
 
             clase:"bajaPeso"
 
@@ -295,11 +600,13 @@ function calcularVariacion(indice){
 
     }
 
-    if(diferencia>0){
 
-        return{
+    if(diferencia > 0){
 
-            texto:`+${diferencia} kg`,
+        return {
+
+            texto:
+                `🔴 +${diferencia.toFixed(1)} kg`,
 
             clase:"subePeso"
 
@@ -307,9 +614,10 @@ function calcularVariacion(indice){
 
     }
 
-    return{
 
-        texto:"0.0 kg",
+    return {
+
+        texto:"⚪ 0.0 kg",
 
         clase:"igualPeso"
 
@@ -324,46 +632,191 @@ function calcularVariacion(indice){
 
 function actualizarDashboard(){
 
-    if(registros.length===0){
+    ordenarRegistros();
+
+
+    if(registros.length === 0){
+
+        document
+            .getElementById("pesoActual")
+            .textContent = "--";
+
+
+        document
+            .getElementById("abdomenActual")
+            .textContent = "--";
+
+
+        document
+            .getElementById("diasRegistrados")
+            .textContent = "0";
+
+
+        document
+            .getElementById("ultimoEntreno")
+            .textContent = "--";
+
+
+        document
+            .getElementById("suenoMedio")
+            .textContent = "--";
+
+
+        document
+            .getElementById("pesoPerdido")
+            .textContent = "--";
+
+
+        document
+            .getElementById("pesoRestante")
+            .textContent = "--";
+
+
+        document
+            .getElementById("barraProgreso")
+            .style.width = "0%";
+
 
         return;
 
     }
 
-    const ultimo=registros[registros.length-1];
 
-    document.getElementById("pesoActual").textContent=
-        ultimo.pesoManana.toFixed(1)+" kg";
+    const ultimo =
+        registros[
+            registros.length - 1
+        ];
 
-    document.getElementById("abdomenActual").textContent=
-        ultimo.abdomenManana.toFixed(1)+" cm";
 
-    document.getElementById("diasRegistrados").textContent=
-        registros.length;
+    const pesoActual =
+        Number(
+            ultimo.pesoManana
+        );
 
-    document.getElementById("ultimoEntreno").textContent=
-        ultimo.entreno || "--";
 
-    const mediaSueno=
-        registros.reduce((a,b)=>a+b.sueno,0)/registros.length;
+    const abdomenActual =
+        Number(
+            ultimo.abdomenManana
+        );
 
-    document.getElementById("suenoMedio").textContent=
-        mediaSueno.toFixed(1)+" h";
 
-    const perdidos=PESO_INICIAL-ultimo.pesoManana;
+    document
+        .getElementById("pesoActual")
+        .textContent = pesoActual
+            ? pesoActual.toFixed(1) + " kg"
+            : "--";
 
-    document.getElementById("pesoPerdido").textContent=
-        perdidos.toFixed(1)+" kg";
 
-    document.getElementById("pesoRestante").textContent=
-        (ultimo.pesoManana-PESO_OBJETIVO).toFixed(1)+" kg";
+    document
+        .getElementById("abdomenActual")
+        .textContent = abdomenActual
+            ? abdomenActual.toFixed(1) + " cm"
+            : "--";
 
-    const progreso=
-        ((PESO_INICIAL-ultimo.pesoManana)/
-        (PESO_INICIAL-PESO_OBJETIVO))*100;
 
-    document.getElementById("barraProgreso").style.width=
-        Math.max(0,Math.min(100,progreso))+"%";
+    document
+        .getElementById("diasRegistrados")
+        .textContent = registros.length;
+
+
+    const ultimoConEntreno =
+        [...registros]
+            .reverse()
+            .find(
+                r =>
+                    r.entreno &&
+                    r.entreno.trim() !== ""
+            );
+
+
+    document
+        .getElementById("ultimoEntreno")
+        .textContent =
+            ultimoConEntreno
+                ? ultimoConEntreno.entreno
+                : "--";
+
+
+    const registrosConSueno =
+        registros.filter(
+            r => Number(r.sueno) > 0
+        );
+
+
+    const mediaSueno =
+        registrosConSueno.length
+            ? registrosConSueno.reduce(
+                (total,registro) =>
+                    total +
+                    Number(registro.sueno),
+                0
+            ) / registrosConSueno.length
+            : 0;
+
+
+    document
+        .getElementById("suenoMedio")
+        .textContent =
+            mediaSueno
+                ? mediaSueno.toFixed(1) + " h"
+                : "--";
+
+
+    if(pesoActual){
+
+        const perdidos =
+            PESO_INICIAL - pesoActual;
+
+
+        const restantes =
+            pesoActual - PESO_OBJETIVO;
+
+
+        document
+            .getElementById("pesoPerdido")
+            .textContent =
+                perdidos.toFixed(1) + " kg";
+
+
+        document
+            .getElementById("pesoRestante")
+            .textContent =
+                Math.max(
+                    0,
+                    restantes
+                ).toFixed(1) + " kg";
+
+
+        const progreso =
+
+            (
+                (
+                    PESO_INICIAL -
+                    pesoActual
+                )
+                /
+                (
+                    PESO_INICIAL -
+                    PESO_OBJETIVO
+                )
+            )
+            * 100;
+
+
+        document
+            .getElementById("barraProgreso")
+            .style.width =
+
+                Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        progreso
+                    )
+                )
+                + "%";
+
+    }
 
 }
 /*==================================================
@@ -372,27 +825,50 @@ function actualizarDashboard(){
 
 function pintarHistorial(){
 
-    tablaHistorial.innerHTML="";
+    ordenarRegistros();
 
-    registros.forEach((registro,indice)=>{
+    tablaHistorial.innerHTML = "";
 
-        const variacion=calcularVariacion(indice);
 
-        const fila=document.createElement("tr");
+    registros.forEach((registro, indice)=>{
 
-        fila.innerHTML=`
+        const variacion =
+            calcularVariacion(indice);
 
-            <td>${registro.fecha}</td>
 
-            <td>${registro.pesoManana.toFixed(1)}</td>
+        const peso =
+            Number(registro.pesoManana);
+
+
+        const abdomen =
+            Number(registro.abdomenManana);
+
+
+        const fila =
+            document.createElement("tr");
+
+
+        fila.innerHTML = `
+
+            <td>
+                ${mostrarFechaRegistro(registro.fecha)}
+            </td>
+
+            <td>
+                ${peso ? peso.toFixed(1) : "—"}
+            </td>
 
             <td class="${variacion.clase}">
                 ${variacion.texto}
             </td>
 
-            <td>${registro.abdomenManana.toFixed(1)}</td>
+            <td>
+                ${abdomen ? abdomen.toFixed(1) : "—"}
+            </td>
 
-            <td>${calcularIMC(registro.pesoManana)}</td>
+            <td>
+                ${calcularIMC(peso)}
+            </td>
 
             <td>
 
@@ -400,7 +876,8 @@ function pintarHistorial(){
 
                     <button
                         class="btnEditar"
-                        onclick="editarRegistro(${registro.id})">
+                        onclick="editarRegistro(${registro.id})"
+                        title="Editar">
 
                         ✏️
 
@@ -408,7 +885,8 @@ function pintarHistorial(){
 
                     <button
                         class="btnEliminar"
-                        onclick="eliminarRegistro(${registro.id})">
+                        onclick="eliminarRegistro(${registro.id})"
+                        title="Eliminar">
 
                         🗑️
 
@@ -420,6 +898,7 @@ function pintarHistorial(){
 
         `;
 
+
         tablaHistorial.appendChild(fila);
 
     });
@@ -428,37 +907,131 @@ function pintarHistorial(){
 
 
 /*==================================================
- EDITAR
+ EDITAR REGISTRO
 ==================================================*/
 
 function editarRegistro(id){
 
-    const registro=registros.find(r=>r.id===id);
+    const registro =
+        registros.find(
+            r => r.id === id
+        );
 
-    if(!registro) return;
 
-    registroEditando=id;
+    if(!registro){
 
-    document.getElementById("pesoManana").value=registro.pesoManana;
-    document.getElementById("abdomenManana").value=registro.abdomenManana;
-    document.getElementById("pesoNoche").value=registro.pesoNoche;
-    document.getElementById("abdomenNoche").value=registro.abdomenNoche;
+        return;
 
-    document.getElementById("agua").value=registro.agua;
-    document.getElementById("sueno").value=registro.sueno;
-    document.getElementById("pasos").value=registro.pasos;
+    }
 
-    document.getElementById("entreno").value=registro.entreno;
 
-    document.getElementById("desayuno").value=registro.desayuno;
-    document.getElementById("comida").value=registro.comida;
-    document.getElementById("cena").value=registro.cena;
+    registroEditando = id;
 
-    document.getElementById("energia").value=registro.energia;
-    document.getElementById("hambre").value=registro.hambre;
-    document.getElementById("notas").value=registro.notas;
+
+    fechaRegistro.value =
+        obtenerFechaOrdenable(
+            registro.fecha
+        );
+
+
+    document
+        .getElementById("pesoManana")
+        .value =
+            registro.pesoManana || "";
+
+
+    document
+        .getElementById("abdomenManana")
+        .value =
+            registro.abdomenManana || "";
+
+
+    document
+        .getElementById("pesoNoche")
+        .value =
+            registro.pesoNoche || "";
+
+
+    document
+        .getElementById("abdomenNoche")
+        .value =
+            registro.abdomenNoche || "";
+
+
+    document
+        .getElementById("agua")
+        .value =
+            registro.agua || "";
+
+
+    document
+        .getElementById("sueno")
+        .value =
+            registro.sueno || "";
+
+
+    document
+        .getElementById("pasos")
+        .value =
+            registro.pasos || "";
+
+
+    document
+        .getElementById("entreno")
+        .value =
+            registro.entreno || "";
+
+
+    document
+        .getElementById("desayuno")
+        .value =
+            registro.desayuno || "";
+
+
+    document
+        .getElementById("comida")
+        .value =
+            registro.comida || "";
+
+
+    document
+        .getElementById("cena")
+        .value =
+            registro.cena || "";
+
+
+    document
+        .getElementById("energia")
+        .value =
+            registro.energia || "";
+
+
+    document
+        .getElementById("hambre")
+        .value =
+            registro.hambre || "";
+
+
+    document
+        .getElementById("notas")
+        .value =
+            registro.notas || "";
+
+
+    guardarBtn.textContent =
+        "💾 Guardar cambios";
+
 
     mostrarPantalla("registrar");
+
+
+    window.scrollTo({
+
+        top:0,
+
+        behavior:"smooth"
+
+    });
 
 }
 
@@ -469,9 +1042,51 @@ function editarRegistro(id){
 
 function eliminarRegistro(id){
 
-    if(!confirm("¿Eliminar este registro?")) return;
+    const registro =
+        registros.find(
+            r => r.id === id
+        );
 
-    registros=registros.filter(r=>r.id!==id);
+
+    if(!registro){
+
+        return;
+
+    }
+
+
+    const confirmar =
+        confirm(
+
+            `¿Eliminar el registro del ${mostrarFechaRegistro(registro.fecha)}?`
+
+        );
+
+
+    if(!confirmar){
+
+        return;
+
+    }
+
+
+    registros =
+        registros.filter(
+            r => r.id !== id
+        );
+
+
+    if(registroEditando === id){
+
+        registroEditando = null;
+
+        limpiarFormulario();
+
+        guardarBtn.textContent =
+            "💾 Finalizar día";
+
+    }
+
 
     guardarDatos();
 
@@ -483,43 +1098,94 @@ function eliminarRegistro(id){
 
 
 /*==================================================
- BORRAR HISTORIAL
+ BORRAR HISTORIAL COMPLETO
 ==================================================*/
 
-document.getElementById("borrarHistorial").addEventListener("click",()=>{
+document
+    .getElementById("borrarHistorial")
+    .addEventListener("click",()=>{
 
-    if(!confirm("¿Seguro que quieres borrar TODO el historial?")) return;
 
-    registros=[];
+        if(registros.length === 0){
 
-    guardarDatos();
+            alert(
+                "No hay registros para borrar."
+            );
 
-    actualizarDashboard();
+            return;
 
-    pintarHistorial();
+        }
+
+
+        const confirmar =
+            confirm(
+
+                "¿Seguro que quieres borrar TODO el historial? Esta acción no se puede deshacer."
+
+            );
+
+
+        if(!confirmar){
+
+            return;
+
+        }
+
+
+        const segundaConfirmacion =
+            confirm(
+
+                "Última confirmación: ¿borrar definitivamente todos los registros?"
+
+            );
+
+
+        if(!segundaConfirmacion){
+
+            return;
+
+        }
+
+
+        registros = [];
+
+        registroEditando = null;
+
+
+        guardarDatos();
+
+        limpiarFormulario();
+
+        guardarBtn.textContent =
+            "💾 Finalizar día";
+
+        actualizarDashboard();
+
+        pintarHistorial();
 
 });
-
-
 /*==================================================
- COPIAR RESUMEN
+ COPIAR RESUMEN DEL ÚLTIMO DÍA
 ==================================================*/
 
-document.getElementById("copiar").addEventListener("click",()=>{
+document
+    .getElementById("copiar")
+    .addEventListener("click", async ()=>{
 
-    if(registros.length===0){
+        if(registros.length === 0){
 
-        alert("No hay registros.");
+            alert("No hay registros.");
 
-        return;
+            return;
 
-    }
+        }
 
-    const r=registros[registros.length-1];
+        ordenarRegistros();
 
-    const resumen=`
+        const r =
+            registros[registros.length - 1];
 
-Fecha: ${r.fecha}
+        const resumen = `Fecha: ${mostrarFechaRegistro(r.fecha)}
 
 🌅 MAÑANA
 
@@ -541,19 +1207,19 @@ Abdomen: ${r.abdomenNoche} cm
 
 💪 Entrenamiento:
 
-${r.entreno}
+${r.entreno || "No"}
 
 🍞 Desayuno:
 
-${r.desayuno}
+${r.desayuno || "No"}
 
 🍽️ Comida:
 
-${r.comida}
+${r.comida || "No"}
 
 🌙 Cena:
 
-${r.cena}
+${r.cena || "No"}
 
 😊 Energía: ${r.energia}/5
 
@@ -561,51 +1227,285 @@ ${r.cena}
 
 📝 Observaciones:
 
-${r.notas}
+${r.notas || "Sin observaciones"}`;
 
-`;
 
-    navigator.clipboard.writeText(resumen);
+        try{
 
-    alert("Resumen copiado.");
+            await navigator.clipboard
+                .writeText(resumen);
+
+            alert("📋 Resumen copiado.");
+
+        }catch(error){
+
+            alert(
+                "No se ha podido copiar el resumen."
+            );
+
+        }
 
 });
 
 
 /*==================================================
- EXPORTAR / IMPORTAR
+ EXPORTAR HISTÓRICO COMPLETO
 ==================================================*/
 
-document.getElementById("exportar").addEventListener("click",()=>{
+document
+    .getElementById("exportar")
+    .addEventListener("click",()=>{
 
-    const blob=new Blob(
+        if(registros.length === 0){
 
-        [JSON.stringify(registros,null,2)],
+            alert(
+                "No hay registros para exportar."
+            );
 
-        {type:"application/json"}
+            return;
 
-    );
+        }
 
-    const enlace=document.createElement("a");
+        ordenarRegistros();
 
-    enlace.href=URL.createObjectURL(blob);
+        const datosExportacion = {
 
-    enlace.download="fittracker.json";
+            aplicacion:"FitTracker Néstor",
 
-    enlace.click();
+            version:"0.3.1",
 
-});
+            altura:ALTURA,
+
+            pesoInicial:PESO_INICIAL,
+
+            pesoObjetivo:PESO_OBJETIVO,
+
+            fechaExportacion:
+                new Date().toISOString(),
+
+            registros:registros
+
+        };
 
 
-document.getElementById("importar").addEventListener("click",()=>{
+        const blob =
+            new Blob(
 
-    alert("La importación llegará en la versión 0.4.");
+                [
+                    JSON.stringify(
+                        datosExportacion,
+                        null,
+                        2
+                    )
+                ],
+
+                {
+                    type:"application/json"
+                }
+
+            );
+
+
+        const url =
+            URL.createObjectURL(blob);
+
+
+        const enlace =
+            document.createElement("a");
+
+
+        enlace.href = url;
+
+        enlace.download =
+            `fittracker-backup-${obtenerFechaHoy()}.json`;
+
+
+        document.body.appendChild(enlace);
+
+        enlace.click();
+
+        enlace.remove();
+
+
+        URL.revokeObjectURL(url);
 
 });
 
 
 /*==================================================
- INICIO
+ IMPORTAR HISTÓRICO COMPLETO
+==================================================*/
+
+document
+    .getElementById("importar")
+    .addEventListener("click",()=>{
+
+        archivoImportar.value = "";
+
+        archivoImportar.click();
+
+});
+
+
+archivoImportar
+    .addEventListener("change", evento=>{
+
+        const archivo =
+            evento.target.files[0];
+
+
+        if(!archivo){
+
+            return;
+
+        }
+
+
+        const lector =
+            new FileReader();
+
+
+        lector.onload = eventoLectura=>{
+
+            try{
+
+                const datos =
+                    JSON.parse(
+                        eventoLectura.target.result
+                    );
+
+
+                let registrosImportados;
+
+
+                if(Array.isArray(datos)){
+
+                    /*
+                    Compatible con exportaciones
+                    antiguas de FitTracker.
+                    */
+
+                    registrosImportados = datos;
+
+                }else if(
+                    datos &&
+                    Array.isArray(datos.registros)
+                ){
+
+                    registrosImportados =
+                        datos.registros;
+
+                }else{
+
+                    throw new Error(
+                        "Formato no válido"
+                    );
+
+                }
+
+
+                const registrosValidos =
+                    registrosImportados.filter(
+                        registro =>
+                            registro &&
+                            registro.fecha
+                    );
+
+
+                if(registrosValidos.length === 0){
+
+                    throw new Error(
+                        "No hay registros válidos"
+                    );
+
+                }
+
+
+                const confirmar =
+                    confirm(
+
+                        `Se han encontrado ${registrosValidos.length} registros.\n\n¿Quieres REEMPLAZAR el historial actual por el historial importado?`
+
+                    );
+
+
+                if(!confirmar){
+
+                    return;
+
+                }
+
+
+                registros =
+                    registrosValidos.map(
+                        (registro,indice)=>({
+
+                            ...registro,
+
+                            id:
+                                registro.id ??
+                                (
+                                    Date.now()
+                                    + indice
+                                )
+
+                        })
+                    );
+
+
+                registroEditando = null;
+
+
+                guardarDatos();
+
+                limpiarFormulario();
+
+                guardarBtn.textContent =
+                    "💾 Finalizar día";
+
+                actualizarDashboard();
+
+                pintarHistorial();
+
+
+                alert(
+
+                    `✅ Importación completada.\n\n${registros.length} registros recuperados.`
+
+                );
+
+
+                mostrarPantalla(
+                    "historial"
+                );
+
+
+            }catch(error){
+
+                console.error(
+                    "Error importando:",
+                    error
+                );
+
+
+                alert(
+
+                    "❌ No se ha podido importar el archivo. Comprueba que sea una copia JSON válida de FitTracker."
+
+                );
+
+            }
+
+        };
+
+
+        lector.readAsText(archivo);
+
+});
+
+
+/*==================================================
+ INICIALIZACIÓN FINAL
 ==================================================*/
 
 actualizarDashboard();
