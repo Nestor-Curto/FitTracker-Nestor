@@ -30,7 +30,6 @@
     </header>
 
 
-
     <!-- ===================================== -->
     <!-- PANTALLA INICIO -->
     <!-- ===================================== -->
@@ -52,18 +51,14 @@
                 <span>Peso actual</span>
 
                 <h3 id="pesoActual">
-
                     --
-
                 </h3>
 
             </div>
 
             <div class="barraObjetivo">
 
-                <div id="barraProgreso">
-
-                </div>
+                <div id="barraProgreso"></div>
 
             </div>
 
@@ -86,9 +81,7 @@
                     <span>Perdidos</span>
 
                     <strong id="pesoPerdido">
-
                         --
-
                     </strong>
 
                 </div>
@@ -98,9 +91,7 @@
                     <span>Restan</span>
 
                     <strong id="pesoRestante">
-
                         --
-
                     </strong>
 
                 </div>
@@ -110,105 +101,63 @@
         </div>
 
 
-
         <div class="dashboardGrid">
 
             <div class="card">
 
-                <div class="emoji">
-                    📏
-                </div>
+                <div class="emoji">📏</div>
 
                 <div class="tituloCard">
-
                     Abdomen
-
                 </div>
 
-                <div
-                    id="abdomenActual"
-                    class="valorCard">
-
+                <div id="abdomenActual" class="valorCard">
                     --
-
                 </div>
 
             </div>
 
 
-
             <div class="card">
 
-                <div class="emoji">
-
-                    📅
-
-                </div>
+                <div class="emoji">📅</div>
 
                 <div class="tituloCard">
-
                     Registros
-
                 </div>
 
-                <div
-                    id="diasRegistrados"
-                    class="valorCard">
-
+                <div id="diasRegistrados" class="valorCard">
                     0
-
                 </div>
 
             </div>
 
 
-
             <div class="card">
 
-                <div class="emoji">
-
-                    🏋️
-
-                </div>
+                <div class="emoji">🏋️</div>
 
                 <div class="tituloCard">
-
                     Último entrenamiento
-
                 </div>
 
-                <div
-                    id="ultimoEntreno"
-                    class="valorCard">
-
+                <div id="ultimoEntreno" class="valorCard">
                     --
-
                 </div>
 
             </div>
 
 
-
             <div class="card">
 
-                <div class="emoji">
-
-                    😴
-
-                </div>
+                <div class="emoji">😴</div>
 
                 <div class="tituloCard">
-
                     Sueño medio
-
                 </div>
 
-                <div
-                    id="suenoMedio"
-                    class="valorCard">
-
+                <div id="suenoMedio" class="valorCard">
                     --
-
                 </div>
 
             </div>
@@ -218,20 +167,28 @@
     </section>
 
 
-
     <!-- ===================================== -->
     <!-- PANTALLA REGISTRAR -->
     <!-- ===================================== -->
 
-    <section
-        id="registrar"
-        class="screen">
+    <section id="registrar" class="screen">
 
         <div class="card">
 
-            <h2>
-                🌅 Mañana
-            </h2>
+            <h2>📅 Fecha del registro</h2>
+
+            <label>Fecha</label>
+
+            <input
+                type="date"
+                id="fechaRegistro">
+
+        </div>
+
+
+        <div class="card">
+
+            <h2>🌅 Mañana</h2>
 
             <label>
                 Peso (kg)
@@ -243,9 +200,7 @@
                 step="0.1">
 
             <label>
-
                 Perímetro abdominal (cm)
-
             </label>
 
             <input
@@ -255,18 +210,13 @@
 
         </div>
 
+
         <div class="card">
 
-            <h2>
-
-                🌙 Noche
-
-            </h2>
+            <h2>🌙 Noche</h2>
 
             <label>
-
                 Peso (kg)
-
             </label>
 
             <input
@@ -275,16 +225,15 @@
                 step="0.1">
 
             <label>
-
                 Perímetro abdominal (cm)
-
             </label>
 
             <input
                 type="number"
                 id="abdomenNoche"
                 step="0.1">
-        </div>
+                        </div>
+
 
         <!-- ===================================== -->
         <!-- ACTIVIDAD -->
@@ -295,18 +244,21 @@
             <h2>🏃 Actividad</h2>
 
             <label>💧 Agua (L)</label>
+
             <input
                 type="number"
                 id="agua"
                 step="0.1">
 
             <label>😴 Sueño (horas)</label>
+
             <input
                 type="number"
                 id="sueno"
                 step="0.1">
 
             <label>🚶 Pasos</label>
+
             <input
                 type="number"
                 id="pasos">
@@ -318,7 +270,6 @@
                 placeholder="Describe el entrenamiento realizado"></textarea>
 
         </div>
-
 
 
         <!-- ===================================== -->
@@ -348,7 +299,6 @@
                 placeholder="¿Qué has cenado?"></textarea>
 
         </div>
-
 
 
         <!-- ===================================== -->
@@ -385,23 +335,19 @@
 
         </div>
 
+
         <button id="guardar">
-
             💾 Finalizar día
-
         </button>
 
     </section>
-
 
 
     <!-- ===================================== -->
     <!-- HISTORIAL -->
     <!-- ===================================== -->
 
-    <section
-        id="historial"
-        class="screen">
+    <section id="historial" class="screen">
 
         <div class="card">
 
@@ -429,44 +375,41 @@
 
                 </thead>
 
-                <tbody>
-
-                </tbody>
+                <tbody></tbody>
 
             </table>
+
 
             <div class="historialBotones">
 
                 <button id="copiar">
-
                     📋 Copiar resumen
-
                 </button>
 
                 <button id="exportar">
-
                     📤 Exportar datos
-
                 </button>
 
                 <button id="importar">
-
                     📥 Importar datos
-
                 </button>
 
                 <button id="borrarHistorial">
-
                     🗑️ Borrar historial
-
                 </button>
+
+                <input
+                    type="file"
+                    id="archivoImportar"
+                    accept=".json,application/json"
+                    hidden>
 
             </div>
 
         </div>
 
     </section>
-    <!-- ===================================== -->
+        <!-- ===================================== -->
     <!-- NAVEGACIÓN INFERIOR -->
     <!-- ===================================== -->
 
@@ -477,7 +420,6 @@
             data-screen="inicio">
 
             <div>🏠</div>
-
             <span>Inicio</span>
 
         </button>
@@ -487,7 +429,6 @@
             data-screen="registrar">
 
             <div>➕</div>
-
             <span>Registrar</span>
 
         </button>
@@ -497,7 +438,6 @@
             data-screen="historial">
 
             <div>📊</div>
-
             <span>Historial</span>
 
         </button>
@@ -505,6 +445,7 @@
     </nav>
 
 </div>
+
 
 <script src="script.js"></script>
 
