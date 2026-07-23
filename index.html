@@ -7,7 +7,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>FitTracker - Néstor</title>
+    <title>FitTracker Néstor/Uxua</title>
 
     <link rel="stylesheet" href="style.css">
 
@@ -23,7 +23,7 @@
 
     <header class="header">
 
-        <h1>💪 FitTracker - Néstor</h1>
+        <h1>💪 FitTracker Néstor/Uxua</h1>
 
         <p id="fecha"></p>
 
@@ -42,9 +42,47 @@
                 Objetivo
             </p>
 
-            <h2>
-                92 kg
-            </h2>
+            <!-- OBJETIVO CONFIGURABLE -->
+
+            <div id="objetivoVisual">
+
+                <h2>
+                    <span id="objetivoPeso">92</span> kg
+                </h2>
+
+                <button
+                    id="editarObjetivo"
+                    type="button">
+                    ⚙️ Cambiar objetivo
+                </button>
+
+            </div>
+
+
+            <div
+                id="editorObjetivo"
+                style="display:none;">
+
+                <label for="nuevoObjetivo">
+                    Nuevo objetivo de peso (kg)
+                </label>
+
+                <input
+                    type="number"
+                    id="nuevoObjetivo"
+                    min="30"
+                    max="250"
+                    step="0.1"
+                    placeholder="Ej: 92">
+
+                <button
+                    id="guardarObjetivo"
+                    type="button">
+                    💾 Guardar objetivo
+                </button>
+
+            </div>
+
 
             <div class="pesoActual">
 
@@ -56,11 +94,13 @@
 
             </div>
 
+
             <div class="barraObjetivo">
 
                 <div id="barraProgreso"></div>
 
             </div>
+
 
             <div class="barraLabels">
 
@@ -69,10 +109,13 @@
                 </span>
 
                 <span>
-                    Objetivo 92 kg
+                    Objetivo
+                    <span id="objetivoPesoBarra">92</span>
+                    kg
                 </span>
 
             </div>
+
 
             <div class="resumenSuperior">
 
@@ -85,6 +128,7 @@
                     </strong>
 
                 </div>
+
 
                 <div class="dato">
 
@@ -111,7 +155,9 @@
                     Abdomen
                 </div>
 
-                <div id="abdomenActual" class="valorCard">
+                <div
+                    id="abdomenActual"
+                    class="valorCard">
                     --
                 </div>
 
@@ -126,7 +172,9 @@
                     Registros
                 </div>
 
-                <div id="diasRegistrados" class="valorCard">
+                <div
+                    id="diasRegistrados"
+                    class="valorCard">
                     0
                 </div>
 
@@ -141,7 +189,9 @@
                     Último entrenamiento
                 </div>
 
-                <div id="ultimoEntreno" class="valorCard">
+                <div
+                    id="ultimoEntreno"
+                    class="valorCard">
                     --
                 </div>
 
@@ -156,7 +206,9 @@
                     Sueño medio
                 </div>
 
-                <div id="suenoMedio" class="valorCard">
+                <div
+                    id="suenoMedio"
+                    class="valorCard">
                     --
                 </div>
 
@@ -232,7 +284,7 @@
                 type="number"
                 id="abdomenNoche"
                 step="0.1">
-                        </div>
+        </div>
 
 
         <!-- ===================================== -->
@@ -406,10 +458,61 @@
 
             </div>
 
+
+            <!-- ===================================== -->
+            <!-- EXPORTAR POR RANGO DE FECHAS -->
+            <!-- ===================================== -->
+
+            <div
+                id="panelExportacion"
+                class="card"
+                style="display:none; margin-top:20px;">
+
+                <h2>📅 Exportar periodo</h2>
+
+                <label for="exportarDesde">
+                    Desde
+                </label>
+
+                <input
+                    type="date"
+                    id="exportarDesde">
+
+
+                <label for="exportarHasta">
+                    Hasta
+                </label>
+
+                <input
+                    type="date"
+                    id="exportarHasta">
+
+
+                <button
+                    id="confirmarExportacion"
+                    type="button"
+                    style="margin-top:15px; width:100%;">
+
+                    📤 Exportar fechas seleccionadas
+
+                </button>
+
+
+                <button
+                    id="cancelarExportacion"
+                    type="button"
+                    style="margin-top:10px; width:100%;">
+
+                    Cancelar
+
+                </button>
+
+            </div>
+
         </div>
 
     </section>
-        <!-- ===================================== -->
+    <!-- ===================================== -->
     <!-- NAVEGACIÓN INFERIOR -->
     <!-- ===================================== -->
 
